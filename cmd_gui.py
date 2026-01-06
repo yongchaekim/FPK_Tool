@@ -97,6 +97,7 @@ class CMDGui:
         # 4 5 6
         # 7 8 9
         # 10 0 11
+        # 12
         keypad_buttons = {
             # First row (1, 2, 3)
             (0, 0): ("FAS\n1 (Home)", self.go_home),
@@ -117,6 +118,9 @@ class CMDGui:
             (3, 0): ("Navigation\n10", self.send_navigation_preset),
             (3, 1): ("Clear Log\n0", self.clear_output),
             (3, 2): ("LONG VIEW\n11", self.send_long_view_preset),
+
+            # Fifth row (12)
+            (4, 1): ("CUSTOM\n12", self.send_custom_12_preset),
         }
 
         # Create keypad buttons (1.3x larger, show action name)
@@ -150,20 +154,6 @@ class CMDGui:
 
         send_signal_btn = ttk.Button(signal_frame, text="Send", command=self.send_custom_signal)
         send_signal_btn.grid(row=0, column=4, sticky=tk.E, padx=(0, 0), ipady=4)
-
-        navigation_btn = ttk.Button(
-            signal_frame,
-            text="Navigation",
-            command=self.send_navigation_preset,
-        )
-        navigation_btn.grid(
-            row=1,
-            column=0,
-            columnspan=5,
-            sticky=(tk.W, tk.E),
-            pady=(8, 0),
-            ipady=3,
-        )
 
         signal_frame.columnconfigure(1, weight=1)
 
@@ -201,8 +191,6 @@ class CMDGui:
         self.cmd_entry.bind('<Control-l>', lambda e: self.clear_command())
         self.root.bind('<Control-r>', lambda e: self.run_command())
         self.root.bind('<F5>', lambda e: self.run_command())
-        self.root.bind('<F6>', lambda e: self.send_navigation_preset())
-        self.root.bind('<Control-n>', lambda e: self.send_navigation_preset())
 
 
     # Keypad number key bindings
@@ -1572,6 +1560,57 @@ fi
         thread.daemon = True
         thread.start()
 
+    def send_custom_12_preset(self):
+        """Key 12: send a small custom batch of DPIDs/values."""
+        pairs = [
+            ("DP_ID_B_AB_SBR_HINTEN_VERBAU", "1"),
+            ("DP_ID_S_GURTSCHLOSS_OPTISCH_2_LINKS", "3"),
+            ("DP_ID_S_LED_GURTWARNUNG", "1"),
+        ]
+
+        self.output_text.insert(tk.END, "[PRESET] CUSTOM (12) batch send\n")
+        self.output_text.see(tk.END)
+
+        def execute_thread():
+            for signal_name, signal_value in pairs:
+                try:
+                    shell_cmd = f'shell IpcSender --dpid {signal_name} 0 {signal_value}'
+                    adb_cmd = self.get_adb_command(shell_cmd)
+                    process = subprocess.Popen(
+                        adb_cmd,
+                        shell=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        encoding='cp949',
+                        cwd=self.current_directory,
+                    )
+                    stdout, stderr = process.communicate(timeout=10)
+                    self.root.after(
+                        0,
+                        lambda n=signal_name, v=signal_value, out=stdout, err=stderr, rc=process.returncode: self.show_signal_result(
+                            n, v, out, err, rc
+                        ),
+                    )
+                except subprocess.TimeoutExpired:
+                    self.root.after(
+                        0,
+                        lambda n=signal_name, v=signal_value: self.show_signal_error(
+                            n, v, "Command execution timed out"
+                        ),
+                    )
+                except Exception as e:
+                    self.root.after(
+                        0,
+                        lambda n=signal_name, v=signal_value, msg=str(e): self.show_signal_error(
+                            n, v, msg
+                        ),
+                    )
+
+        thread = threading.Thread(target=execute_thread)
+        thread.daemon = True
+        thread.start()
+
     def show_signal_result(self, signal_name, signal_value, stdout, stderr, returncode):
         """Show the result of sending a user signal."""
         combined_output = f"{stdout or ''}\n{stderr or ''}".strip()
@@ -1799,6 +1838,7 @@ def main():
     app.output_text.insert(tk.END, "4(◀):MENU UP  5(Enter):OK  6(▶):MENU DOWN\n")
     app.output_text.insert(tk.END, "7:SIGNAL input  8(▼):DOWN  9(PgDn):VIEW\n")
     app.output_text.insert(tk.END, "10:Navigation  11:LONG VIEW\n")
+    app.output_text.insert(tk.END, "12:CUSTOM\n")
     app.output_text.insert(tk.END, "0:Clear Log\n")
     app.output_text.insert(tk.END, "="*60 + "\n")
     
