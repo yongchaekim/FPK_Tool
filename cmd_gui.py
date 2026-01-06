@@ -92,29 +92,31 @@ class CMDGui:
         keypad_frame = ttk.Frame(main_frame)
         keypad_frame.grid(row=2, column=0, columnspan=3, pady=(10, 10))
 
-        # Keypad button definitions (numpad layout)
-        # 7 8 9
-        # 4 5 6
+        # Keypad button definitions
         # 1 2 3
-        # 0
+        # 4 5 6
+        # 7 8 9
+        # 10 0 11
         keypad_buttons = {
-            # First row (7, 8, 9)
-            (0, 0): ("FAS\n7 (Home)", self.go_home),
-            (0, 1): ("UP\n8 (▲)", self.move_up),
-            (0, 2): ("ADAS\n9", self.send_adas_preset),
+            # First row (1, 2, 3)
+            (0, 0): ("FAS\n1 (Home)", self.go_home),
+            (0, 1): ("UP\n2 (▲)", self.move_up),
+            (0, 2): ("ADAS\n3", self.send_adas_preset),
 
             # Second row (4, 5, 6)
             (1, 0): ("MENU UP\n4 (◀)", self.move_left),
             (1, 1): ("OK\n5 (Enter)", self.run_command),
             (1, 2): ("MENU DOWN\n6 (▶)", self.move_right),
 
-            # Third row (1, 2, 3)
-            (2, 0): ("SIGNAL\n1", self.focus_signal_input),
-            (2, 1): ("DOWN\n2 (▼)", self.move_down),
-            (2, 2): ("VIEW\n3 (PgDn)", self.save_output),
+            # Third row (7, 8, 9)
+            (2, 0): ("SIGNAL\n7", self.focus_signal_input),
+            (2, 1): ("DOWN\n8 (▼)", self.move_down),
+            (2, 2): ("VIEW\n9 (PgDn)", self.save_output),
 
             # Fourth row (0)
-            (3, 1): ("Clear Log\n0", self.clear_output)
+            (3, 0): ("Navigation\n10", self.send_navigation_preset),
+            (3, 1): ("Clear Log\n0", self.clear_output),
+            (3, 2): ("LONG VIEW\n11", self.send_long_view_preset),
         }
 
         # Create keypad buttons (1.3x larger, show action name)
@@ -148,6 +150,20 @@ class CMDGui:
 
         send_signal_btn = ttk.Button(signal_frame, text="Send", command=self.send_custom_signal)
         send_signal_btn.grid(row=0, column=4, sticky=tk.E, padx=(0, 0), ipady=4)
+
+        navigation_btn = ttk.Button(
+            signal_frame,
+            text="Navigation",
+            command=self.send_navigation_preset,
+        )
+        navigation_btn.grid(
+            row=1,
+            column=0,
+            columnspan=5,
+            sticky=(tk.W, tk.E),
+            pady=(8, 0),
+            ipady=3,
+        )
 
         signal_frame.columnconfigure(1, weight=1)
 
@@ -185,40 +201,42 @@ class CMDGui:
         self.cmd_entry.bind('<Control-l>', lambda e: self.clear_command())
         self.root.bind('<Control-r>', lambda e: self.run_command())
         self.root.bind('<F5>', lambda e: self.run_command())
+        self.root.bind('<F6>', lambda e: self.send_navigation_preset())
+        self.root.bind('<Control-n>', lambda e: self.send_navigation_preset())
 
 
     # Keypad number key bindings
-        self.root.bind('<KeyPress-KP_7>', lambda e: self.go_home())
-        self.root.bind('<KeyPress-KP_8>', lambda e: self.move_up())
-        self.root.bind('<KeyPress-KP_9>', lambda e: self.send_adas_preset())
+        self.root.bind('<KeyPress-KP_1>', lambda e: self.go_home())
+        self.root.bind('<KeyPress-KP_2>', lambda e: self.move_up())
+        self.root.bind('<KeyPress-KP_3>', lambda e: self.send_adas_preset())
         self.root.bind('<KeyPress-KP_4>', lambda e: self.move_left())
         self.root.bind('<KeyPress-KP_5>', lambda e: self.run_command())
         self.root.bind('<KeyPress-KP_6>', lambda e: self.move_right())
-        self.root.bind('<KeyPress-KP_1>', lambda e: self.focus_signal_input())
-        self.root.bind('<KeyPress-KP_2>', lambda e: self.move_down())
-        self.root.bind('<KeyPress-KP_3>', lambda e: self.save_output())
+        self.root.bind('<KeyPress-KP_7>', lambda e: self.focus_signal_input())
+        self.root.bind('<KeyPress-KP_8>', lambda e: self.move_down())
+        self.root.bind('<KeyPress-KP_9>', lambda e: self.save_output())
         self.root.bind('<KeyPress-KP_0>', lambda e: self.clear_output())
 
     # Also support regular number keys (if no numpad)
-        self.root.bind('<KeyPress-7>', lambda e: self.go_home())
-        self.root.bind('<KeyPress-8>', lambda e: self.move_up())
-        self.root.bind('<KeyPress-9>', lambda e: self.send_adas_preset())
+        self.root.bind('<KeyPress-1>', lambda e: self.go_home())
+        self.root.bind('<KeyPress-2>', lambda e: self.move_up())
+        self.root.bind('<KeyPress-3>', lambda e: self.send_adas_preset())
         self.root.bind('<KeyPress-4>', lambda e: self.move_left())
         self.root.bind('<KeyPress-5>', lambda e: self.run_command())
         self.root.bind('<KeyPress-6>', lambda e: self.move_right())
-        self.root.bind('<KeyPress-1>', lambda e: self.focus_signal_input())
-        self.root.bind('<KeyPress-2>', lambda e: self.move_down())
-        self.root.bind('<KeyPress-3>', lambda e: self.save_output())
+        self.root.bind('<KeyPress-7>', lambda e: self.focus_signal_input())
+        self.root.bind('<KeyPress-8>', lambda e: self.move_down())
+        self.root.bind('<KeyPress-9>', lambda e: self.save_output())
         self.root.bind('<KeyPress-0>', lambda e: self.clear_output())
 
         # Special key bindings
-        self.root.bind('<Home>', lambda e: self.go_home())          # 7 - Home
-        self.root.bind('<Up>', lambda e: self.move_up())            # 8 - Up arrow
+        self.root.bind('<Home>', lambda e: self.go_home())          # 1 - Home
+        self.root.bind('<Up>', lambda e: self.move_up())            # 2 - Up arrow
         self.root.bind('<Left>', lambda e: self.move_left())        # 4 - Left arrow
         self.root.bind('<Return>', lambda e: self.run_command())    # 5 - Enter
         self.root.bind('<Right>', lambda e: self.move_right())      # 6 - Right arrow
-        self.root.bind('<Down>', lambda e: self.move_down())        # 2 - Down arrow
-        self.root.bind('<Next>', lambda e: self.save_output())      # 3 - Page Down
+        self.root.bind('<Down>', lambda e: self.move_down())        # 8 - Down arrow
+        self.root.bind('<Next>', lambda e: self.save_output())      # 9 - Page Down
     
     def update_directory_label(self):
         """Update current directory state (no label)."""
@@ -1288,13 +1306,13 @@ fi
 
     # Keypad functions
     def go_home(self):
-        """Run the FAS button (keypad 7)."""
-        self.output_text.insert(tk.END, "[7] Run FAS\n")
+        """Run the FAS button (keypad 1)."""
+        self.output_text.insert(tk.END, "[1] Run FAS\n")
         self.execute_mfl_command("fas")
 
     def move_up(self):
-        """Run the UP button (keypad 8)."""
-        self.output_text.insert(tk.END, "[8] Run UP\n")
+        """Run the UP button (keypad 2)."""
+        self.output_text.insert(tk.END, "[2] Run UP\n")
         self.execute_mfl_command("up")
 
     def refresh_dir(self):
@@ -1314,12 +1332,12 @@ fi
         self.execute_mfl_command("menudown")
 
     def move_down(self):
-        """Run the DOWN button (keypad 2)."""
-        self.output_text.insert(tk.END, "[2] Run DOWN\n")
+        """Run the DOWN button (keypad 8)."""
+        self.output_text.insert(tk.END, "[8] Run DOWN\n")
         self.execute_mfl_command("down")
 
     def focus_signal_input(self):
-        """Move focus to the SIGNAL input field (keypad 1)."""
+        """Move focus to the SIGNAL input field (keypad 7)."""
         try:
             if hasattr(self, 'signal_name_entry') and self.signal_name_entry.winfo_exists():
                 self.signal_name_entry.focus_set()
@@ -1444,6 +1462,111 @@ fi
                     self.root.after(0, lambda n=signal_name, v=signal_value: self.show_signal_error(n, v, "Command execution timed out"))
                 except Exception as e:
                     self.root.after(0, lambda n=signal_name, v=signal_value, msg=str(e): self.show_signal_error(n, v, msg))
+
+        thread = threading.Thread(target=execute_thread)
+        thread.daemon = True
+        thread.start()
+
+    def send_navigation_preset(self):
+        """Preset: send a batch of Navigation-related DPIDs/values."""
+        pairs = [
+            ("DP_ID_BAP_NAVI_VIDEOSTREAMS_AVAILABLE", "1"),
+            ("DP_ID_BAP_NAVI_ACTIVERGTYPE_RGTYPE", "3"),
+            ("DP_ID_HMI_NAVI_VIDEOSTREAM_VIDEODATA_READY", "1"),
+            ("DP_ID_BAP_NAVIGATION_AVAILABLE", "1"),
+            ("DP_ID_BAP_NAVI_FSG_OPERATIONSTATE_OP_STATE", "0"),
+        ]
+
+        self.output_text.insert(tk.END, "[PRESET] Navigation batch send\n")
+        self.output_text.see(tk.END)
+
+        def execute_thread():
+            for signal_name, signal_value in pairs:
+                try:
+                    shell_cmd = f'shell IpcSender --dpid {signal_name} 0 {signal_value}'
+                    adb_cmd = self.get_adb_command(shell_cmd)
+                    process = subprocess.Popen(
+                        adb_cmd,
+                        shell=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        encoding='cp949',
+                        cwd=self.current_directory,
+                    )
+                    stdout, stderr = process.communicate(timeout=10)
+                    self.root.after(
+                        0,
+                        lambda n=signal_name, v=signal_value, out=stdout, err=stderr, rc=process.returncode: self.show_signal_result(
+                            n, v, out, err, rc
+                        ),
+                    )
+                except subprocess.TimeoutExpired:
+                    self.root.after(
+                        0,
+                        lambda n=signal_name, v=signal_value: self.show_signal_error(
+                            n, v, "Command execution timed out"
+                        ),
+                    )
+                except Exception as e:
+                    self.root.after(
+                        0,
+                        lambda n=signal_name, v=signal_value, msg=str(e): self.show_signal_error(
+                            n, v, msg
+                        ),
+                    )
+
+        thread = threading.Thread(target=execute_thread)
+        thread.daemon = True
+        thread.start()
+
+    def send_long_view_preset(self):
+        """Key 11: send the LONG VIEW press/release sequence (twice)."""
+        pairs = [
+            ("DP_ID_HMI_VIEW_LONG_PRESS", "1"),
+            ("DP_ID_HMI_VIEW_LONG_PRESS", "0"),
+            ("DP_ID_HMI_VIEW_LONG_PRESS_RELEASE", "1"),
+            ("DP_ID_HMI_VIEW_LONG_PRESS_RELEASE", "0"),
+        ]
+
+        self.output_text.insert(tk.END, "[KEY] LONG VIEW (11) sequence send\n")
+        self.output_text.see(tk.END)
+
+        def execute_thread():
+            for signal_name, signal_value in pairs:
+                try:
+                    shell_cmd = f'shell IpcSender --dpid {signal_name} 0 {signal_value}'
+                    adb_cmd = self.get_adb_command(shell_cmd)
+                    process = subprocess.Popen(
+                        adb_cmd,
+                        shell=True,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        text=True,
+                        encoding='cp949',
+                        cwd=self.current_directory,
+                    )
+                    stdout, stderr = process.communicate(timeout=10)
+                    self.root.after(
+                        0,
+                        lambda n=signal_name, v=signal_value, out=stdout, err=stderr, rc=process.returncode: self.show_signal_result(
+                            n, v, out, err, rc
+                        ),
+                    )
+                except subprocess.TimeoutExpired:
+                    self.root.after(
+                        0,
+                        lambda n=signal_name, v=signal_value: self.show_signal_error(
+                            n, v, "Command execution timed out"
+                        ),
+                    )
+                except Exception as e:
+                    self.root.after(
+                        0,
+                        lambda n=signal_name, v=signal_value, msg=str(e): self.show_signal_error(
+                            n, v, msg
+                        ),
+                    )
 
         thread = threading.Thread(target=execute_thread)
         thread.daemon = True
@@ -1582,8 +1705,8 @@ fi
         self.output_text.insert(tk.END, "="*60 + "\n")
     
     def save_output(self):
-        """Run the VIEW button (keypad 3)."""
-        self.output_text.insert(tk.END, "[3] Run VIEW\n")
+        """Run the VIEW button (keypad 9)."""
+        self.output_text.insert(tk.END, "[9] Run VIEW\n")
         self.execute_mfl_command("view")
 
     def execute_mfl_command(self, button_name):
@@ -1672,9 +1795,10 @@ def main():
     app.output_text.insert(tk.END, "FPK ADB CMD Sender started - HMI button control\n")
     app.output_text.insert(tk.END, f"Current directory: {os.getcwd()}\n")
     app.output_text.insert(tk.END, "HMI keypad usage:\n")
-    app.output_text.insert(tk.END, "7(Home):FAS  8(▲):UP  9:ADAS\n")
+    app.output_text.insert(tk.END, "1(Home):FAS  2(▲):UP  3:ADAS\n")
     app.output_text.insert(tk.END, "4(◀):MENU UP  5(Enter):OK  6(▶):MENU DOWN\n")
-    app.output_text.insert(tk.END, "1:SIGNAL input  2(▼):DOWN  3(PgDn):VIEW\n")
+    app.output_text.insert(tk.END, "7:SIGNAL input  8(▼):DOWN  9(PgDn):VIEW\n")
+    app.output_text.insert(tk.END, "10:Navigation  11:LONG VIEW\n")
     app.output_text.insert(tk.END, "0:Clear Log\n")
     app.output_text.insert(tk.END, "="*60 + "\n")
     
