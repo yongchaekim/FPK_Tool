@@ -48,34 +48,13 @@ class CMDGui:
         
     def setup_styles(self):
         """Configure GUI styles."""
-        style = ttk.Style(self.root)
-
-        # Prefer modern Windows themes when available.
-        available_themes = set(style.theme_names())
-        for theme_name in ("vista", "xpnative", "clam"):
-            if theme_name in available_themes:
-                style.theme_use(theme_name)
-                break
-
-        # Typography + spacing defaults
-        ui_font = ("Segoe UI", 10)
-        mono_font = ("Consolas", 10)
-        self.root.option_add("*Font", ui_font)
-        style.configure(".", font=ui_font)
-        style.configure("Header.TLabel", font=("Segoe UI", 11, "bold"))
-        style.configure("Status.TLabel", font=("Segoe UI", 10, "bold"))
-        style.configure("Primary.TButton", padding=(12, 8))
-        style.configure("Keypad.TButton", font=("Segoe UI", 10, "bold"), padding=(14, 10))
-        style.configure("TButton", padding=(10, 6))
-        style.configure("TEntry", padding=(6, 4))
-
-        # Store for non-ttk widgets
-        self._mono_font = mono_font
+        style = ttk.Style()
+        style.theme_use('winnative')
         
     def create_widgets(self):
         """Create GUI widgets (keypad layout)."""
         # Main frame
-        main_frame = ttk.Frame(self.root, padding=16)
+        main_frame = ttk.Frame(self.root, padding="10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
 
         # Top settings button and status text
@@ -83,28 +62,20 @@ class CMDGui:
         settings_frame.grid(row=0, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 10))
 
         # Settings button (increased height)
-        settings_btn = ttk.Button(
-            settings_frame,
-            text="Settings",
-            command=self.open_settings,
-            style="Primary.TButton",
-        )
-        settings_btn.grid(row=0, column=0, pady=6, padx=(0, 12))
+        settings_btn = ttk.Button(settings_frame, text="Settings",
+                                 command=self.open_settings)
+        settings_btn.grid(row=0, column=0, pady=5, padx=(0, 10), ipady=8)
 
         # Connection status message
-        self.connection_status_label = ttk.Label(
-            settings_frame,
-            text="Checking connection...",
-            foreground="orange",
-            style="Status.TLabel",
-        )
+        self.connection_status_label = ttk.Label(settings_frame, text="Checking connection...",
+                 foreground="orange", font=('Arial', 9, 'bold'))
         self.connection_status_label.grid(row=0, column=1, sticky=tk.W, padx=(10, 0))
 
         # ADB Shell status indicator (traffic light)
         status_frame = ttk.Frame(settings_frame)
         status_frame.grid(row=0, column=2, sticky=tk.E, padx=5)
         
-        ttk.Label(status_frame, text="ADB Shell:", style="Status.TLabel").pack(side=tk.LEFT, padx=(0, 6))
+        ttk.Label(status_frame, text="ADB Shell:", font=('Arial', 9, 'bold')).pack(side=tk.LEFT, padx=(0, 5))
         
         self.status_canvas = tk.Canvas(status_frame, width=20, height=20, highlightthickness=0)
         self.status_canvas.pack(side=tk.LEFT)
@@ -150,29 +121,17 @@ class CMDGui:
         self.keypad_btns = {}
         for (row, col), (text, command) in keypad_buttons.items():
             if command is None:  # Disabled button
-                btn = ttk.Button(
-                    keypad_frame,
-                    text=text,
-                    state=tk.DISABLED,
-                    width=16,
-                    style="Keypad.TButton",
-                )
+                btn = ttk.Button(keypad_frame, text=text, state=tk.DISABLED, width=16)
             else:
-                btn = ttk.Button(
-                    keypad_frame,
-                    text=text,
-                    command=command,
-                    width=16,
-                    style="Keypad.TButton",
-                )
-            btn.grid(row=row, column=col, padx=10, pady=10, sticky=(tk.W, tk.E))
+                btn = ttk.Button(keypad_frame, text=text, command=command, width=16)
+            btn.grid(row=row, column=col, padx=8, pady=8, sticky=(tk.W, tk.E), ipady=8)
             self.keypad_btns[(row, col)] = btn
 
         # Custom Signal send input (signal name + value)
         signal_frame = ttk.Frame(main_frame)
         signal_frame.grid(row=3, column=0, columnspan=3, sticky=(tk.W, tk.E), pady=(0, 10))
 
-        ttk.Label(signal_frame, text="Signal:").grid(row=0, column=0, sticky=tk.W, pady=(0, 2))
+        ttk.Label(signal_frame, text="Signal:").grid(row=0, column=0, sticky=tk.W)
 
         self.signal_name_var = tk.StringVar()
         self.signal_value_var = tk.StringVar()
@@ -181,19 +140,14 @@ class CMDGui:
         self.signal_name_entry.grid(row=0, column=1, sticky=(tk.W, tk.E), padx=(6, 6))
         self.signal_name_entry.insert(0, "DP_ID_")
 
-        ttk.Label(signal_frame, text="Value:").grid(row=0, column=2, sticky=tk.W, padx=(8, 0), pady=(0, 2))
+        ttk.Label(signal_frame, text="Value:").grid(row=0, column=2, sticky=tk.W, padx=(6, 0))
 
         self.signal_value_entry = ttk.Entry(signal_frame, textvariable=self.signal_value_var, width=10)
         self.signal_value_entry.grid(row=0, column=3, sticky=tk.W, padx=(6, 6))
         self.signal_value_entry.bind('<Return>', lambda e: self.send_custom_signal())
 
-        send_signal_btn = ttk.Button(
-            signal_frame,
-            text="Send",
-            command=self.send_custom_signal,
-            style="Primary.TButton",
-        )
-        send_signal_btn.grid(row=0, column=4, sticky=tk.E)
+        send_signal_btn = ttk.Button(signal_frame, text="Send", command=self.send_custom_signal)
+        send_signal_btn.grid(row=0, column=4, sticky=tk.E, padx=(0, 0), ipady=4)
 
         signal_frame.columnconfigure(1, weight=1)
 
@@ -201,18 +155,17 @@ class CMDGui:
         output_frame = ttk.Frame(main_frame)
         output_frame.grid(row=4, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(0, 10))
 
-        ttk.Label(output_frame, text="Output:", style="Header.TLabel").grid(row=0, column=0, sticky=tk.W)
+        ttk.Label(output_frame, text="Output:").grid(row=0, column=0, sticky=tk.W)
 
         # Scrollable text widget (reduced height)
         self.output_text = scrolledtext.ScrolledText(
             output_frame,
             height=8,
             width=80,
-            font=getattr(self, "_mono_font", ('Consolas', 10)),
+            font=('Consolas', 9),
             wrap=tk.WORD
         )
         self.output_text.grid(row=1, column=0, columnspan=3, sticky=(tk.W, tk.E, tk.N, tk.S))
-        self.output_text.configure(borderwidth=1, relief=tk.SOLID)
 
 
 
