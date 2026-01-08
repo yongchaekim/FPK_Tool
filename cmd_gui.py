@@ -9,6 +9,7 @@ import subprocess
 import threading
 import os
 import sys
+import time
 from datetime import datetime
 import re
 
@@ -286,13 +287,13 @@ class CMDGui:
         """Build an ADB command (includes device id, optional custom adb folder)."""
         # Determine base adb path
         if self.adb_folder and os.path.exists(self.adb_folder):
-            # Use adb.exe from the specified folder
-            adb_exe = os.path.join(self.adb_folder, "adb.exe")
+            # Use adb1.exe from the specified folder
+            adb_exe = os.path.join(self.adb_folder, "adb1.exe")
             if os.path.exists(adb_exe):
                 base_cmd = f'"{adb_exe}"'
             else:
-                # Fall back to default command if adb.exe isn't found
-                self.log_to_output(f"[Warning] adb.exe not found in the specified folder: {self.adb_folder}")
+                # Fall back to default command if adb1.exe isn't found
+                self.log_to_output(f"[Warning] adb1.exe not found in the specified folder: {self.adb_folder}")
                 base_cmd = "adb"
         else:
             # Use default adb command (search on PATH)
@@ -1012,12 +1013,12 @@ fi
                 messagebox.showerror("Error", f"The selected path is not a folder:\n{folder_path}")
                 return
 
-            # Check for adb.exe
-            adb_exe_path = os.path.join(folder_path, "adb.exe")
+            # Check for adb1.exe
+            adb_exe_path = os.path.join(folder_path, "adb1.exe")
             if not os.path.exists(adb_exe_path):
                 result = messagebox.askyesno(
                     "Confirm",
-                    f"adb.exe was not found in the selected folder:\n{folder_path}\n\nUse this folder anyway?",
+                    f"adb1.exe was not found in the selected folder:\n{folder_path}\n\nUse this folder anyway?",
                 )
                 if not result:
                     return
@@ -1562,17 +1563,114 @@ fi
 
     def send_custom_12_preset(self):
         """Key 12: send a small custom batch of DPIDs/values."""
-        pairs = [
-            ("DP_ID_B_AB_SBR_HINTEN_VERBAU", "1"),
-            ("DP_ID_S_GURTSCHLOSS_OPTISCH_2_LINKS", "3"),
-            ("DP_ID_S_LED_GURTWARNUNG", "1"),
+        # Scripted sequence with explicit waits (ms) between steps
+        steps = [
+            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42490"),
+            ("WAIT", "1000"), 
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "0"),                            
+            ("DP_ID_HMI_ZPM_ANZEIGEID", "42493"),
+
+            ("WAIT", "300"), 
+
         ]
 
         self.output_text.insert(tk.END, "[PRESET] CUSTOM (12) batch send\n")
         self.output_text.see(tk.END)
 
         def execute_thread():
-            for signal_name, signal_value in pairs:
+            for signal_name, signal_value in steps:
+                if signal_name == "WAIT":
+                    try:
+                        wait_ms = int(str(signal_value).strip())
+                    except Exception:
+                        wait_ms = 0
+
+                    # Log wait (must be done on the UI thread)
+                    self.root.after(0, lambda ms=wait_ms: self.output_text.insert(tk.END, f"[PRESET] wait {ms} ms\n"))
+                    self.root.after(0, lambda: self.output_text.see(tk.END))
+
+                    if wait_ms > 0:
+                        time.sleep(wait_ms / 1000.0)
+                    continue
+
                 try:
                     shell_cmd = f'shell IpcSender --dpid {signal_name} 0 {signal_value}'
                     adb_cmd = self.get_adb_command(shell_cmd)
